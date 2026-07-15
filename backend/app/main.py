@@ -19,3 +19,4 @@ def home():
     return {
         "message": "Welcome to SocialPilot Backend"
     }
+    # Week 2 completed
