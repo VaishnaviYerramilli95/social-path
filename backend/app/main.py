@@ -1,6 +1,12 @@
 from fastapi import FastAPI
 from  app.database import engine, Base
 from app.routers.social_accounts import router as social_router
+from app.routers.auth import router as auth_router
+from app.routers.users import router as users_router
+from app.routers.campaigns import router as campaigns_router
+from app.routers.analytics import router as analytics_router
+from app.routers.notifications import router as notifications_router
+from app.routers.scheduler import router as scheduler_router
 
 app = FastAPI(
     title="SocialPilot API",
@@ -12,11 +18,16 @@ Base.metadata.create_all(bind=engine)
 
 # Register Social Account Router
 app.include_router(social_router)
-
+app.include_router(auth_router)
+app.include_router(users_router)
+app.include_router(campaigns_router)
+app.include_router(analytics_router)
+app.include_router(notifications_router)
+app.include_router(scheduler_router)
 
 @app.get("/")
 def home():
     return {
         "message": "Welcome to SocialPilot Backend"
     }
-    # Week 2 completed
+    

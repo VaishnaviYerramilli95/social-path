@@ -4,6 +4,10 @@ from uuid import UUID
 from datetime import datetime
 
 
+# -------------------------
+# Social Account Schemas
+# -------------------------
+
 class SocialAccountBase(BaseModel):
     platform: str
     account_name: str
@@ -23,3 +27,51 @@ class SocialAccountResponse(SocialAccountBase):
 
     class Config:
         from_attributes = True
+
+
+# -------------------------
+# User Schemas
+# -------------------------
+
+class UserCreate(BaseModel):
+    username: str
+    email: str
+    password: str
+
+
+class UserLogin(BaseModel):
+    email: str
+    password: str
+
+
+class UserResponse(BaseModel):
+    id: str
+    username: str
+    email: str
+
+    class Config:
+        from_attributes = True
+
+ # -------------------------
+# Campaign Schemas
+# -------------------------
+
+class CampaignBase(BaseModel):
+    name: str
+    platform: str
+    start_date: str
+    end_date: str
+    budget: float
+    objective: str
+    performance: str
+
+
+class CampaignCreate(CampaignBase):
+    pass
+
+
+class CampaignResponse(CampaignBase):
+    id: str
+
+    class Config:
+        from_attributes = True 

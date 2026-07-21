@@ -1,8 +1,9 @@
 import datetime
 import uuid
 
-from sqlalchemy import Column, String, DateTime, ForeignKey, Text
+from sqlalchemy import Column, String, DateTime, Float, Text
 from sqlalchemy.dialects.postgresql import UUID
+
 from app.database import Base
 
 
@@ -22,3 +23,25 @@ class SocialAccount(Base):
         default=datetime.datetime.utcnow,
         onupdate=datetime.datetime.utcnow,
     )
+
+
+class User(Base):
+    __tablename__ = "users"
+
+    id = Column(String, primary_key=True, index=True)
+    username = Column(String, unique=True, nullable=False)
+    email = Column(String, unique=True, nullable=False)
+    password = Column(String, nullable=False)
+
+
+class Campaign(Base):
+    __tablename__ = "campaigns"
+
+    id = Column(String, primary_key=True, index=True)
+    name = Column(String, nullable=False)
+    platform = Column(String, nullable=False)
+    start_date = Column(String)
+    end_date = Column(String)
+    budget = Column(Float)
+    objective = Column(String)
+    performance = Column(String)
