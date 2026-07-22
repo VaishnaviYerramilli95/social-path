@@ -52,7 +52,11 @@ const notificationService = {
   getNotifications: async () => {
     try {
       const response = await api.get('/notifications');
-      return response.data;
+      if (Array.isArray(response.data)) {
+        return response.data;
+      }
+
+      return getLocalStorageNotifications();
     } catch (error) {
       console.warn("[API MOCK] Using fallback localStorage notifications");
       return getLocalStorageNotifications();

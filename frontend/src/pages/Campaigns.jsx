@@ -44,7 +44,19 @@ const Campaigns = () => {
     try {
       setLoading(true);
       const data = await campaignService.getCampaigns();
-      setCampaigns(data);
+      const formattedCampaigns = data.map(campaign => ({
+        id: campaign.id,
+        name: campaign.name,
+        description: campaign.objective,
+        status: "active",
+        budget: campaign.budget,
+        spent: 0,
+        startDate: campaign.start_date,
+        endDate: campaign.end_date,
+        platforms: campaign.platform ? [campaign.platform] : [],
+        postsCount: 0
+      }));
+      setCampaigns(formattedCampaigns);
     } catch (err) {
       notifyError("Failed to fetch campaigns.");
     } finally {
@@ -107,14 +119,14 @@ const Campaigns = () => {
     const errors = {};
     if (!formData.name.trim()) errors.name = 'Campaign name is required.';
     if (!formData.description.trim()) errors.description = 'Campaign description is required.';
-    
+
     const budgetNum = Number(formData.budget);
     if (!formData.budget) {
       errors.budget = 'Budget is required.';
     } else if (isNaN(budgetNum) || budgetNum <= 0) {
       errors.budget = 'Budget must be a positive number.';
     }
-    
+
     if (!formData.startDate) errors.startDate = 'Start date is required.';
     if (!formData.endDate) {
       errors.endDate = 'End date is required.';
@@ -171,11 +183,11 @@ const Campaigns = () => {
 
   // Filter and Search Logic
   const filteredCampaigns = campaigns.filter(campaign => {
-    const matchesSearch = campaign.name.toLowerCase().includes(searchTerm.toLowerCase()) || 
-                          campaign.description.toLowerCase().includes(searchTerm.toLowerCase());
-    
+    const matchesSearch = campaign.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      campaign.description.toLowerCase().includes(searchTerm.toLowerCase());
+
     const matchesStatus = statusFilter === 'all' || campaign.status === statusFilter;
-    
+
     return matchesSearch && matchesStatus;
   });
 
@@ -193,7 +205,7 @@ const Campaigns = () => {
 
       {/* Search and filter controls panel */}
       <Card className="p-4 flex flex-col md:flex-row md:items-center justify-between gap-4">
-        
+
         {/* Search Input */}
         <div className="relative w-full md:max-w-md">
           <IoSearchOutline className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 dark:text-slate-500 text-lg" />
@@ -289,9 +301,8 @@ const Campaigns = () => {
               value={formData.description}
               onChange={handleInputChange}
               rows={3}
-              className={`w-full rounded-xl text-sm font-medium border bg-white dark:bg-dark-900/40 text-slate-800 dark:text-slate-100 pl-4 pr-4 py-3 focus:outline-none transition-all duration-200 custom-input ${
-                formErrors.description ? 'border-rose-400 focus:border-rose-500' : 'border-slate-200 dark:border-dark-700/60 focus:border-primary-500'
-              }`}
+              className={`w-full rounded-xl text-sm font-medium border bg-white dark:bg-dark-900/40 text-slate-800 dark:text-slate-100 pl-4 pr-4 py-3 focus:outline-none transition-all duration-200 custom-input ${formErrors.description ? 'border-rose-400 focus:border-rose-500' : 'border-slate-200 dark:border-dark-700/60 focus:border-primary-500'
+                }`}
             />
             {formErrors.description && (
               <span className="text-xs text-rose-500 font-medium select-none">{formErrors.description}</span>
@@ -366,11 +377,10 @@ const Campaigns = () => {
                 return (
                   <label
                     key={platform}
-                    className={`flex items-center gap-3 px-4 py-3 rounded-xl border cursor-pointer select-none transition-all duration-200 ${
-                      isChecked 
-                        ? 'border-primary-500/60 bg-primary-50/10 dark:bg-primary-950/5 text-primary-500' 
+                    className={`flex items-center gap-3 px-4 py-3 rounded-xl border cursor-pointer select-none transition-all duration-200 ${isChecked
+                        ? 'border-primary-500/60 bg-primary-50/10 dark:bg-primary-950/5 text-primary-500'
                         : 'border-slate-200 dark:border-dark-700/60 bg-white dark:bg-dark-900/20 text-slate-500 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-dark-900/10'
-                    }`}
+                      }`}
                   >
                     <input
                       type="checkbox"

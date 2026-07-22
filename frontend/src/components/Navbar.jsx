@@ -24,15 +24,23 @@ const Navbar = ({ toggleSidebar }) => {
     const fetchNotifications = async () => {
       try {
         const data = await notificationService.getNotifications();
-        const unread = data.filter(n => !n.read);
-        setUnreadCount(unread.length);
-        setRecentNotifications(data.slice(0, 4));
+        if (Array.isArray(data)) {
+          const unread = data.filter(n => !n.read);
+          setUnreadCount(unread.length);
+          setRecentNotifications(data.slice(0, 4));
+        } else {
+          setUnreadCount(0);
+          setRecentNotifications([]);
+        }
+        // const unread = data.filter(n => !n.read);
+        // setUnreadCount(unread.length);
+        // setRecentNotifications(data.slice(0, 4));
       } catch (err) {
         console.error("Failed to load notifications for navbar:", err);
       }
     };
     fetchNotifications();
-    
+
     // Poll notifications every 30 seconds for real-time updates
     const interval = setInterval(fetchNotifications, 30000);
     return () => clearInterval(interval);
@@ -76,7 +84,7 @@ const Navbar = ({ toggleSidebar }) => {
 
   return (
     <header className="sticky top-0 z-30 flex h-16 w-full items-center justify-between border-b border-slate-100 dark:border-dark-700/50 bg-white/80 dark:bg-dark-800/80 backdrop-blur-md px-6 select-none transition-colors duration-200">
-      
+
       {/* Left side navbar hamburger and search */}
       <div className="flex items-center gap-4 flex-1">
         <button
@@ -101,7 +109,7 @@ const Navbar = ({ toggleSidebar }) => {
 
       {/* Right side navbar actions */}
       <div className="flex items-center gap-3">
-        
+
         {/* Theme Toggle Button */}
         <button
           onClick={toggleTheme}
@@ -137,7 +145,7 @@ const Navbar = ({ toggleSidebar }) => {
               <div className="max-h-[300px] overflow-y-auto divide-y divide-slate-50 dark:divide-dark-700/20">
                 {recentNotifications.length > 0 ? (
                   recentNotifications.map((notif) => (
-                    <div 
+                    <div
                       key={notif.id}
                       onClick={() => {
                         markNotificationRead(notif.id);

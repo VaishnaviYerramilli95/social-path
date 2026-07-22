@@ -67,7 +67,7 @@ const saveLocalStorageCampaigns = (campaigns) => {
 const campaignService = {
   getCampaigns: async () => {
     try {
-      const response = await api.get('/campaigns');
+      const response = await api.get('/campaigns/');
       return response.data;
     } catch (error) {
       console.warn("[API MOCK] Using fallback localStorage campaigns");
@@ -77,7 +77,16 @@ const campaignService = {
 
   createCampaign: async (campaignData) => {
     try {
-      const response = await api.post('/campaigns', campaignData);
+      // const response = await api.post('/campaigns/', campaignData);
+      const response = await api.post('/campaigns', {
+        name: campaignData.name,
+        platform: campaignData.platforms[0] || "",
+        start_date: campaignData.startDate,
+        end_date: campaignData.endDate,
+        budget: campaignData.budget,
+        objective: campaignData.description,
+        performance: "Pending"
+      });
       return response.data;
     } catch (error) {
       console.warn("[API MOCK] Creating campaign in localStorage");
@@ -103,7 +112,7 @@ const campaignService = {
       const campaigns = getLocalStorageCampaigns();
       const index = campaigns.findIndex(c => c.id === id);
       if (index === -1) throw new Error("Campaign not found");
-      
+
       const updatedCampaign = {
         ...campaigns[index],
         ...campaignData
