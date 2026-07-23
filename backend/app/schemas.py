@@ -48,6 +48,9 @@ class UserResponse(BaseModel):
     id: str
     username: str
     email: str
+    phone: str | None = None
+    company_name: str | None = None
+    avatar: str | None = None
 
     class Config:
         from_attributes = True

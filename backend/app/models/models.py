@@ -32,6 +32,9 @@ class User(Base):
     username = Column(String, unique=True, nullable=False)
     email = Column(String, unique=True, nullable=False)
     password = Column(String, nullable=False)
+    phone = Column(String, nullable=True)
+    company_name= Column(String, nullable=True)
+    avatar= Column(String, nullable=True)
 
 
 class Campaign(Base):

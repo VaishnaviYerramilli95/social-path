@@ -1,7 +1,7 @@
 import uuid
 from sqlalchemy.orm import Session
 
-from app.models.models import SocialAccount, Campaign
+from app.models.models import SocialAccount, Campaign, User
 from app.schemas import SocialAccountCreate, CampaignCreate
 
 
@@ -87,3 +87,33 @@ def delete_campaign(db: Session, campaign_id: str):
         db.commit()
 
     return campaign
+
+    # ----------------------------
+# User CRUD
+# ----------------------------
+
+def get_users(db: Session):
+    return db.query(User).all()
+
+
+def get_user(db: Session, user_id: str):
+    return db.query(User).filter(User.id == user_id).first()
+
+
+def update_user(db: Session, user_id: str, data: dict):
+    user = db.query(User).filter(User.id == user_id).first()
+
+    if not user:
+        return None
+
+    for key, value in data.items():
+        setattr(user, key, value)
+
+    db.commit()
+    db.refresh(user)
+    return user
+def create_user(db: Session, user: User):
+    db.add(user)
+    db.commit()
+    db.refresh(user)
+    return user
