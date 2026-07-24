@@ -8,6 +8,8 @@ from app.routers.campaigns import router as campaigns_router
 from app.routers.analytics import router as analytics_router
 from app.routers.notifications import router as notifications_router
 from app.routers.scheduler import router as scheduler_router
+from app.routers.activity import router as activity_router
+from app.routers.dashboard import router as dashboard_router
 
 app = FastAPI(
     title="SocialPilot API",
@@ -38,6 +40,8 @@ app.include_router(campaigns_router)
 app.include_router(analytics_router)
 app.include_router(notifications_router)
 app.include_router(scheduler_router)
+app.include_router(activity_router)
+app.include_router(dashboard_router)
 
 @app.get("/")
 def home():

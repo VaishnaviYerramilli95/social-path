@@ -2,7 +2,7 @@ import uuid
 from sqlalchemy.orm import Session
 
 from app.models.models import SocialAccount, Campaign, User
-from app.schemas import SocialAccountCreate, CampaignCreate
+from app.schemas import SocialAccountCreate, CampaignCreate, CampaignUpdate
 
 
 # -------------------------
@@ -71,10 +71,26 @@ def get_campaigns(db: Session):
     return db.query(Campaign).all()
 
 
-def get_campaign(db: Session, campaign_id: str):
-    return db.query(Campaign).filter(
+def update_campaign(db: Session, campaign_id: str, campaign: CampaignUpdate):
+    db_campaign = db.query(Campaign).filter(
         Campaign.id == campaign_id
     ).first()
+
+    if not db_campaign:
+        return None
+
+    db_campaign.name = campaign.name
+    db_campaign.platform = campaign.platform
+    db_campaign.start_date = campaign.start_date
+    db_campaign.end_date = campaign.end_date
+    db_campaign.budget = campaign.budget
+    db_campaign.objective = campaign.objective
+    db_campaign.performance = campaign.performance
+    db_campaign.status = campaign.status
+
+    db.commit()
+    db.refresh(db_campaign)
+    return db_campaign
 
 
 def delete_campaign(db: Session, campaign_id: str):

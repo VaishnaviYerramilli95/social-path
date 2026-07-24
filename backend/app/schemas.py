@@ -55,6 +55,14 @@ class UserResponse(BaseModel):
     class Config:
         from_attributes = True
 
+
+class UserUpdate(BaseModel):
+    username: str | None = None
+    email: str | None = None
+    phone: str | None = None
+    company_name: str | None = None
+    avatar: str | None = None
+
  # -------------------------
 # Campaign Schemas
 # -------------------------
@@ -67,11 +75,13 @@ class CampaignBase(BaseModel):
     budget: float
     objective: str
     performance: str
-
+    status: str
 
 class CampaignCreate(CampaignBase):
     pass
 
+class CampaignUpdate(CampaignBase):
+    pass
 
 class CampaignResponse(CampaignBase):
     id: str

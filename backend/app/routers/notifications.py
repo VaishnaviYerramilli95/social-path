@@ -28,18 +28,14 @@ notifications = [
 def get_notifications():
     return notifications
 
-@router.put("/{notification_id}/read")
-def mark_as_read(notification_id: str):
+@router.put("/read-all")
+def mark_all_as_read():
     for notification in notifications:
-        if notification["id"] == notification_id:
-            notification["read"] = True
-            return notification
-    raise HTTPException(status_code=404, detail="Notification not found")
+        notification["read"] = True
+    return {"success": True}
 
-@router.delete("/{notification_id}")
-def delete_notification(notification_id: str):
-    for notification in notifications:
-        if notification["id"] == notification_id:
-            notifications.remove(notification)
-            return {"message": "Notification deleted"}
-    raise HTTPException(status_code=404, detail="Notification not found")
+
+@router.delete("/")
+def clear_notifications():
+    notifications.clear()
+    return {"success": True}
