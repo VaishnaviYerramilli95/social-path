@@ -27,6 +27,19 @@ def get_campaign(campaign_id: str, db: Session = Depends(get_db)):
         raise HTTPException(status_code=404, detail="Campaign not found")
     return campaign
 
+@router.put("/{campaign_id}", response_model=schemas.CampaignResponse)
+def update_campaign(
+    campaign_id: str,
+    campaign: schemas.CampaignUpdate,
+    db: Session = Depends(get_db)
+):
+    updated_campaign = crud.update_campaign(db, campaign_id, campaign)
+
+    if not updated_campaign:
+        raise HTTPException(status_code=404, detail="Campaign not found")
+
+    return updated_campaign
+
 
 @router.delete("/{campaign_id}")
 def delete_campaign(campaign_id: str, db: Session = Depends(get_db)):
