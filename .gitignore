@@ -1,0 +1,21 @@
+# Dependency directories
+node_modules/
+venv/
+.venv/
+env/
+
+# Python caches
+__pycache__/
+*.pyc
+
+# Local environment variables
+.env
+.env.local
+
+# Database files
+*.db
+*.sqlite3
+
+# OS files
+.DS_Store
+Thumbs.db
