@@ -1,6 +1,7 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from  app.database import engine, Base
+from app.models import models
 from app.routers.social_accounts import router as social_router
 from app.routers.auth import router as auth_router
 from app.routers.users import router as users_router
@@ -12,6 +13,7 @@ from app.routers.activity import router as activity_router
 from app.routers.dashboard import router as dashboard_router
 
 app = FastAPI(
+    debug=True,
     title="SocialPilot API",
     version="1.0.0"
 )
@@ -42,6 +44,9 @@ app.include_router(notifications_router)
 app.include_router(scheduler_router)
 app.include_router(activity_router)
 app.include_router(dashboard_router)
+print("Server Started")
+print(engine)
+print(Base.metadata.tables.keys())
 
 @app.get("/")
 def home():

@@ -3,7 +3,7 @@ from sqlalchemy.orm import Session
 from uuid import UUID
 
 from app.database import get_db
-from app.schemas import SocialAccountCreate
+from app.schemas import SocialAccountCreate, SocialAccountUpdate
 from app import crud
 
 router = APIRouter(
@@ -24,12 +24,19 @@ def create_account(
 
 @router.get("/")
 def get_accounts(db: Session = Depends(get_db)):
+    print("GET route called")
     return crud.get_social_accounts(db)
 
 
 @router.get("/{account_id}")
 def get_account(account_id: UUID, db: Session = Depends(get_db)):
     return crud.get_social_account(db, account_id)
+
+
+@router.put("/{account_id}")
+def update_account(account_id: UUID, account: SocialAccountUpdate, db: Session = Depends(get_db)):
+    print("PUT API CALLED")
+    return crud.update_social_account(db, account_id, account)
 
 
 @router.delete("/{account_id}")

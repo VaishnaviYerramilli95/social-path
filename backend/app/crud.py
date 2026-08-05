@@ -2,7 +2,7 @@ import uuid
 from sqlalchemy.orm import Session
 
 from app.models.models import SocialAccount, Campaign, User
-from app.schemas import SocialAccountCreate, CampaignCreate, CampaignUpdate
+from app.schemas import SocialAccountCreate, SocialAccountUpdate, CampaignCreate, CampaignUpdate
 
 
 # -------------------------
@@ -15,9 +15,16 @@ def create_social_account(db: Session, account: SocialAccountCreate, user_id):
         platform=account.platform,
         account_name=account.account_name,
         account_id=account.account_id,
+        account_type=account.account_type,
+        connection_status=account.connection_status,
         access_token=account.access_token,
         refresh_token=account.refresh_token,
+        token_expiry=account.token_expiry,
+        permissions=account.permissions,
+        workspace=account.workspace,
+        last_sync_time=account.last_sync_time,
     )
+
     db.add(db_account)
     db.commit()
     db.refresh(db_account)
@@ -29,9 +36,49 @@ def get_social_accounts(db: Session):
 
 
 def get_social_account(db: Session, account_id):
-    return db.query(SocialAccount).filter(
+    print("Received ID:", account_id)
+
+    account = db.query(SocialAccount).filter(
         SocialAccount.id == account_id
     ).first()
+
+    print("Result:", account)
+    return account
+
+def update_social_account(db: Session, account_id, account: SocialAccountUpdate):
+    try:
+        print("Received ID:", account_id)
+
+        db_account = db.query(SocialAccount).filter(
+            SocialAccount.id == account_id
+        ).first()
+
+        print("DB Account:", db_account)
+
+        if not db_account:
+            return None
+
+        db_account.platform = account.platform
+        db_account.account_name = account.account_name
+        db_account.account_id = account.account_id
+        db_account.account_type = account.account_type
+        db_account.connection_status = account.connection_status
+        db_account.access_token = account.access_token
+        db_account.refresh_token = account.refresh_token
+        db_account.token_expiry = account.token_expiry
+        db_account.permissions = account.permissions
+        db_account.workspace = account.workspace
+        db_account.last_sync_time = account.last_sync_time
+
+        db.commit()
+        db.refresh(db_account)
+
+        print("Updated Successfully")
+        return db_account
+
+    except Exception as e:
+        print("ERROR:", e)
+        raise
 
 
 def delete_social_account(db: Session, account_id):
@@ -60,6 +107,7 @@ def create_campaign(db: Session, campaign: CampaignCreate):
         budget=campaign.budget,
         objective=campaign.objective,
         performance=campaign.performance,
+        status=campaign.status,
     )
     db.add(db_campaign)
     db.commit()
@@ -69,6 +117,10 @@ def create_campaign(db: Session, campaign: CampaignCreate):
 
 def get_campaigns(db: Session):
     return db.query(Campaign).all()
+
+def get_campaign(db: Session, campaign_id: str):
+    return db.query(Campaign).filter(Campaign.id == campaign_id).first()
+    
 
 
 def update_campaign(db: Session, campaign_id: str, campaign: CampaignUpdate):

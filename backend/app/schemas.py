@@ -2,6 +2,7 @@ from pydantic import BaseModel
 from typing import Optional
 from uuid import UUID
 from datetime import datetime
+from pydantic import BaseModel
 
 
 # -------------------------
@@ -12,16 +13,38 @@ class SocialAccountBase(BaseModel):
     platform: str
     account_name: str
     account_id: Optional[str] = None
+    account_type: Optional[str] = None
+    connection_status: Optional[str] = "connected"
+    permissions: Optional[str] = None
+    workspace: Optional[str] = None
 
 
 class SocialAccountCreate(SocialAccountBase):
     access_token: Optional[str] = None
     refresh_token: Optional[str] = None
+    token_expiry: Optional[datetime] = None
+    last_sync_time: Optional[datetime] = None
+
+
+class SocialAccountUpdate(BaseModel):
+    platform: str
+    account_name: str
+    account_id: str
+    account_type: str
+    connection_status: str
+    access_token: str
+    refresh_token: str
+    token_expiry: datetime
+    permissions: str
+    workspace: str
+    last_sync_time: datetime
 
 
 class SocialAccountResponse(SocialAccountBase):
     id: UUID
     user_id: str
+    token_expiry: Optional[datetime] = None
+    last_sync_time: Optional[datetime] = None
     created_at: datetime
     updated_at: datetime
 
