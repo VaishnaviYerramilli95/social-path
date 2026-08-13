@@ -12,6 +12,23 @@ from app.routers.activity import router as activity_router
 from app.routers.dashboard import router as dashboard_router
 from app.routers.search import router as search_router
 
+import os
+
+origins = [
+    "http://localhost:3000",
+    "http://localhost:3001",
+    "http://127.0.0.1:3000",
+    "http://127.0.0.1:3001",
+]
+
+frontend_url = os.environ.get("FRONTEND_URL")
+if frontend_url:
+    origins.append(frontend_url)
+    if frontend_url.endswith("/"):
+        origins.append(frontend_url[:-1])
+    else:
+        origins.append(frontend_url + "/")
+
 app = FastAPI(
     title="SocialPilot API",
     version="1.0.0"
@@ -19,12 +36,7 @@ app = FastAPI(
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=[
-        "http://localhost:3000",
-        "http://localhost:3001",
-        "http://127.0.0.1:3000",
-        "http://127.0.0.1:3001",
-    ],
+    allow_origins=origins,
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
