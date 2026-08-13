@@ -14,6 +14,8 @@ import Notifications from '../pages/Notifications';
 import Settings from '../pages/Settings';
 import Profile from '../pages/Profile';
 import NotFound from '../pages/NotFound';
+import SocialAccounts from '../pages/SocialAccounts';
+import Reports from '../pages/Reports';
 
 const AppRoutes = () => {
   return (
@@ -33,9 +35,11 @@ const AppRoutes = () => {
       >
         <Route index element={<Navigate to="/dashboard" replace />} />
         <Route path="dashboard" element={<Dashboard />} />
+        <Route path="social-accounts" element={<SocialAccounts />} />
         <Route path="campaigns" element={<Campaigns />} />
         <Route path="scheduler" element={<Scheduler />} />
         <Route path="analytics" element={<Analytics />} />
+        <Route path="reports" element={<Reports />} />
         <Route path="notifications" element={<Notifications />} />
         <Route path="settings" element={<Settings />} />
         <Route path="profile" element={<Profile />} />

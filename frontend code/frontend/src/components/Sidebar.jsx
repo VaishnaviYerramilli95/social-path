@@ -9,7 +9,9 @@ import {
   IoSettingsOutline, 
   IoPersonOutline, 
   IoLogOutOutline,
-  IoCloseOutline
+  IoCloseOutline,
+  IoPeopleOutline,
+  IoDocumentTextOutline
 } from 'react-icons/io5';
 import { useAuth } from '../hooks/useAuth';
 
@@ -19,9 +21,11 @@ const Sidebar = ({ isOpen, toggleSidebar }) => {
 
   const menuItems = [
     { name: 'Dashboard', path: '/dashboard', icon: IoGridOutline },
+    { name: 'Social Accounts', path: '/social-accounts', icon: IoPeopleOutline },
     { name: 'Campaigns', path: '/campaigns', icon: IoMegaphoneOutline },
     { name: 'Scheduler', path: '/scheduler', icon: IoCalendarClearOutline },
     { name: 'Analytics', path: '/analytics', icon: IoBarChartOutline },
+    { name: 'Reports', path: '/reports', icon: IoDocumentTextOutline },
     { name: 'Notifications', path: '/notifications', icon: IoNotificationsOutline },
     { name: 'Settings', path: '/settings', icon: IoSettingsOutline },
     { name: 'Profile', path: '/profile', icon: IoPersonOutline },

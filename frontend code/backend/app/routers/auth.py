@@ -8,7 +8,8 @@ from app import crud
 from app.utils.security import (
     hash_password,
     verify_password,
-    create_access_token
+    create_access_token,
+    verify_token
 )
 import uuid
 
@@ -36,6 +37,13 @@ def register(user: UserCreate, db: Session = Depends(get_db)):
 
     crud.create_user(db, new_user)
 
+    # Auto seed demo data for new user registration
+    try:
+        from app.utils.seeding import seed_user_data
+        seed_user_data(db, new_user.id)
+    except Exception as e:
+        print("Auto seeding failed:", e)
+
     access_token = create_access_token({"sub": new_user.id})
 
     return {
@@ -51,7 +59,7 @@ def register(user: UserCreate, db: Session = Depends(get_db)):
         }
     }
 
-    
+
 @router.post("/login")
 def login(
     form_data: OAuth2PasswordRequestForm = Depends(),
@@ -73,6 +81,22 @@ def login(
         "user": {
             "id": user.id,
             "username": user.username,
-            "email": user.email
+            "email": user.email,
+            "phone": user.phone,
+            "company_name": user.company_name,
+            "avatar": user.avatar
         }
     }
+
+
+@router.post("/seed")
+def seed_database(
+    user_id: str = Depends(verify_token),
+    db: Session = Depends(get_db)
+):
+    try:
+        from app.utils.seeding import seed_user_data
+        seed_user_data(db, user_id)
+        return {"success": True, "message": "Demo database seeded successfully."}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Seeding failed: {str(e)}")

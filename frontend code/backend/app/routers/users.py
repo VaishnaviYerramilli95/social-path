@@ -31,8 +31,12 @@ def get_profile(
 def update_user(
     user_id: str,
     data: schemas.UserUpdate,
+    current_user_id: str = Depends(verify_token),
     db: Session = Depends(get_db)
 ):
+    if user_id != current_user_id:
+        raise HTTPException(status_code=403, detail="Not authorized to update this profile")
+        
     user = crud.update_user(db, user_id, data.model_dump(exclude_unset=True))
 
     if not user:

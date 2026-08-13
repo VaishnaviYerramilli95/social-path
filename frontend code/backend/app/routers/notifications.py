@@ -1,59 +1,71 @@
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter, Depends, HTTPException
+from sqlalchemy.orm import Session
+from app.database import get_db
+from app import crud, schemas
+from app.utils.security import verify_token
 
 router = APIRouter(
     prefix="/notifications",
     tags=["Notifications"]
 )
 
-notifications = [
-    {
-        "id": "1",
-        "title": "Campaign Created",
-        "message": "Campaign created successfully",
-        "timestamp": "2026-07-23T10:00:00",
-        "type": "success",
-        "read": False
-    },
-    {
-        "id": "2",
-        "title": "Post Scheduled",
-        "message": "Your post has been scheduled",
-        "timestamp": "2026-07-23T11:00:00",
-        "type": "info",
-        "read": False
-    }
-]
 
-@router.get("/")
-def get_notifications():
-    return notifications
+@router.get("/", response_model=list[schemas.NotificationResponse])
+def get_notifications(
+    db: Session = Depends(get_db),
+    user_id: str = Depends(verify_token)
+):
+    db_notifs = crud.get_notifications(db, user_id)
+    return [
+        {
+            "id": n.id,
+            "user_id": n.user_id,
+            "title": n.title,
+            "message": n.message,
+            "type": n.type,
+            "read": n.is_read,
+            "created_at": n.created_at
+        } for n in db_notifs
+    ]
+
 
 @router.put("/read-all")
-def mark_all_as_read():
-    for notification in notifications:
-        notification["read"] = True
+def mark_all_as_read(
+    db: Session = Depends(get_db),
+    user_id: str = Depends(verify_token)
+):
+    crud.mark_all_notifications_read(db, user_id)
     return {"success": True}
 
 
 @router.put("/{notification_id}/read")
-def mark_notification_as_read(notification_id: str):
-    for notification in notifications:
-        if notification["id"] == notification_id:
-            notification["read"] = True
-            return {"success": True}
-    raise HTTPException(status_code=404, detail="Notification not found")
+def mark_notification_as_read(
+    notification_id: str,
+    db: Session = Depends(get_db),
+    user_id: str = Depends(verify_token)
+):
+    notif = crud.mark_notification_read(db, notification_id, user_id)
+    if not notif:
+        raise HTTPException(status_code=404, detail="Notification not found")
+    return {"success": True}
 
 
 @router.delete("/")
-def clear_notifications():
-    notifications.clear()
+def clear_notifications(
+    db: Session = Depends(get_db),
+    user_id: str = Depends(verify_token)
+):
+    crud.clear_notifications(db, user_id)
     return {"success": True}
 
 
 @router.delete("/{notification_id}")
-def delete_single_notification(notification_id: str):
-    for notification in notifications:
-        if notification["id"] == notification_id:
-            notifications.remove(notification)
-            return {"success": True}
-    raise HTTPException(status_code=404, detail="Notification not found")
+def delete_single_notification(
+    notification_id: str,
+    db: Session = Depends(get_db),
+    user_id: str = Depends(verify_token)
+):
+    notif = crud.delete_notification(db, notification_id, user_id)
+    if not notif:
+        raise HTTPException(status_code=404, detail="Notification not found")
+    return {"success": True}

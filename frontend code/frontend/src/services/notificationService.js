@@ -55,7 +55,6 @@ const notificationService = {
       if (Array.isArray(response.data)) {
         return response.data;
       }
-
       return getLocalStorageNotifications();
     } catch (error) {
       console.warn("[API MOCK] Using fallback localStorage notifications");
@@ -76,6 +75,19 @@ const notificationService = {
     }
   },
 
+  markAllAsRead: async () => {
+    try {
+      await api.put('/notifications/read-all');
+      return { success: true };
+    } catch (error) {
+      console.warn("[API MOCK] Marking all notifications as read in localStorage");
+      const notifications = getLocalStorageNotifications();
+      const updated = notifications.map(n => ({ ...n, read: true }));
+      saveLocalStorageNotifications(updated);
+      return { success: true };
+    }
+  },
+
   deleteNotification: async (id) => {
     try {
       await api.delete(`/notifications/${id}`);
@@ -85,6 +97,17 @@ const notificationService = {
       let notifications = getLocalStorageNotifications();
       notifications = notifications.filter(n => n.id !== id);
       saveLocalStorageNotifications(notifications);
+      return { success: true };
+    }
+  },
+
+  clearAll: async () => {
+    try {
+      await api.delete('/notifications');
+      return { success: true };
+    } catch (error) {
+      console.warn("[API MOCK] Clearing notifications from localStorage");
+      saveLocalStorageNotifications([]);
       return { success: true };
     }
   }

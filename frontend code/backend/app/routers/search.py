@@ -1,15 +1,15 @@
 from fastapi import APIRouter, Depends
 from sqlalchemy.orm import Session
+from sqlalchemy import or_, and_
 from app.database import get_db
-from app.models.models import Campaign
-from app.routers.scheduler import schedules
-from app.routers.notifications import notifications
+from app.models.models import Campaign, Post, Notification
 from app.utils.security import verify_token
 
 router = APIRouter(
     prefix="/search",
     tags=["Search"]
 )
+
 
 @router.get("/")
 def search(
@@ -21,28 +21,41 @@ def search(
     
     # 1. Search campaigns in database
     db_campaigns = db.query(Campaign).filter(
-        Campaign.name.ilike(query_str) | 
-        Campaign.objective.ilike(query_str) |
-        Campaign.platform.ilike(query_str)
+        and_(
+            Campaign.user_id == user_id,
+            or_(
+                Campaign.name.ilike(query_str),
+                Campaign.objective.ilike(query_str),
+                Campaign.platform.ilike(query_str)
+            )
+        )
     ).all()
     
-    # 2. Search schedules from memory
-    matching_schedules = []
+    # 2. Search posts (schedules) in database
+    db_posts = []
     if q:
-        q_lower = q.lower()
-        matching_schedules = [
-            s for s in schedules
-            if q_lower in s.get("content", "").lower() or q_lower in s.get("platform", "").lower()
-        ]
+        db_posts = db.query(Post).filter(
+            and_(
+                Post.user_id == user_id,
+                or_(
+                    Post.content.ilike(query_str),
+                    Post.platform.ilike(query_str)
+                )
+            )
+        ).all()
         
-    # 3. Search notifications from memory
-    matching_notifications = []
+    # 3. Search notifications in database
+    db_notifs = []
     if q:
-        q_lower = q.lower()
-        matching_notifications = [
-            n for n in notifications
-            if q_lower in n.get("title", "").lower() or q_lower in n.get("message", "").lower()
-        ]
+        db_notifs = db.query(Notification).filter(
+            and_(
+                Notification.user_id == user_id,
+                or_(
+                    Notification.title.ilike(query_str),
+                    Notification.message.ilike(query_str)
+                )
+            )
+        ).all()
         
     return {
         "campaigns": [
@@ -54,6 +67,22 @@ def search(
                 "status": c.status
             } for c in db_campaigns
         ],
-        "schedules": matching_schedules,
-        "notifications": matching_notifications
+        "schedules": [
+            {
+                "id": p.id,
+                "platform": p.platform,
+                "content": p.content,
+                "scheduled_time": p.scheduled_time,
+                "status": p.status
+            } for p in db_posts
+        ],
+        "notifications": [
+            {
+                "id": n.id,
+                "title": n.title,
+                "message": n.message,
+                "type": n.type,
+                "read": n.is_read
+            } for n in db_notifs
+        ]
     }

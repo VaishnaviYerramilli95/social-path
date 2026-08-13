@@ -50,4 +50,10 @@ def home():
     return {
         "message": "Welcome to SocialPilot Backend"
     }
+
+@app.get("/health")
+def health():
+    return {
+        "status": "ok"
+    }
     

@@ -61,9 +61,7 @@ const Notifications = () => {
     
     try {
       setLoading(true);
-      for (const item of unread) {
-        await notificationService.markAsRead(item.id);
-      }
+      await notificationService.markAllAsRead();
       setNotifications(prev => prev.map(n => ({ ...n, read: true })));
       success("All notifications marked as read.");
     } catch (err) {
@@ -73,13 +71,16 @@ const Notifications = () => {
     }
   };
 
-  const handleClearAll = () => {
+  const handleClearAll = async () => {
     try {
-      localStorage.setItem('socialpilot_notifications', JSON.stringify([]));
+      setLoading(true);
+      await notificationService.clearAll();
       setNotifications([]);
       success("Cleared all notifications.");
     } catch (err) {
       notifyError("Failed to clear items.");
+    } finally {
+      setLoading(false);
     }
   };
 

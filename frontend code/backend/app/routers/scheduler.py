@@ -1,44 +1,52 @@
-from fastapi import APIRouter, HTTPException
-import uuid
+from fastapi import APIRouter, Depends, HTTPException
+from sqlalchemy.orm import Session
+from app.database import get_db
+from app import crud, schemas
+from app.utils.security import verify_token
 
 router = APIRouter(
     prefix="/scheduler",
     tags=["Scheduler"]
 )
 
-schedules = [
-    {
-        "id": "1",
-        "campaign_id": "camp001",
-        "platform": "Instagram",
-        "content": "New product launch",
-        "scheduled_time": "2026-07-23T18:00:00",
-        "status": "scheduled"
-    }
-]
 
-@router.get("/")
-def get_scheduler():
-    return schedules
+@router.get("/", response_model=list[schemas.PostResponse])
+def get_scheduler(
+    db: Session = Depends(get_db),
+    user_id: str = Depends(verify_token)
+):
+    return crud.get_posts(db, user_id)
 
-@router.post("/")
-def create_schedule(schedule: dict):
-    schedule["id"] = str(uuid.uuid4())
-    schedules.append(schedule)
-    return schedule
 
-@router.put("/{schedule_id}")
-def update_schedule(schedule_id: str, data: dict):
-    for schedule in schedules:
-        if schedule["id"] == schedule_id:
-            schedule.update(data)
-            return schedule
-    raise HTTPException(status_code=404, detail="Schedule not found")
+@router.post("/", response_model=schemas.PostResponse)
+def create_schedule(
+    post: schemas.PostCreate,
+    db: Session = Depends(get_db),
+    user_id: str = Depends(verify_token)
+):
+    return crud.create_post(db, post, user_id)
 
-@router.delete("/{schedule_id}")
-def delete_schedule(schedule_id: str):
-    for schedule in schedules:
-        if schedule["id"] == schedule_id:
-            schedules.remove(schedule)
-            return {"message": "Schedule deleted"}
-    raise HTTPException(status_code=404, detail="Schedule not found")
+
+@router.put("/{post_id}", response_model=schemas.PostResponse)
+def update_schedule(
+    post_id: str,
+    post: schemas.PostUpdate,
+    db: Session = Depends(get_db),
+    user_id: str = Depends(verify_token)
+):
+    updated_post = crud.update_post(db, post_id, post, user_id)
+    if not updated_post:
+        raise HTTPException(status_code=404, detail="Scheduled post not found")
+    return updated_post
+
+
+@router.delete("/{post_id}")
+def delete_schedule(
+    post_id: str,
+    db: Session = Depends(get_db),
+    user_id: str = Depends(verify_token)
+):
+    post = crud.delete_post(db, post_id, user_id)
+    if not post:
+        raise HTTPException(status_code=404, detail="Scheduled post not found")
+    return {"success": True, "message": "Scheduled post deleted successfully."}

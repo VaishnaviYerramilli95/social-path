@@ -6,13 +6,28 @@ const socialAccountService = {
       const response = await api.get('/social-accounts');
       return response.data;
     } catch (error) {
-      console.warn("[API MOCK] Fallback social accounts");
-      return [
-        { id: '1', platform: 'facebook', account_name: '@SocialPilotDev', status: 'Connected' },
-        { id: '2', platform: 'instagram', account_name: 'socialpilot_dev', status: 'Connected' },
-        { id: '3', platform: 'linkedin', account_name: 'SocialPilot Inc', status: 'Connected' },
-        { id: '4', platform: 'twitter', account_name: '@SocialPilotHQ', status: 'Connected' }
-      ];
+      console.error("Failed to fetch social accounts:", error);
+      throw error;
+    }
+  },
+
+  connectAccount: async (accountData) => {
+    try {
+      const response = await api.post('/social-accounts', accountData);
+      return response.data;
+    } catch (error) {
+      console.error("Failed to connect social account:", error);
+      throw error;
+    }
+  },
+
+  disconnectAccount: async (id) => {
+    try {
+      const response = await api.delete(`/social-accounts/${id}`);
+      return response.data;
+    } catch (error) {
+      console.error("Failed to disconnect social account:", error);
+      throw error;
     }
   }
 };

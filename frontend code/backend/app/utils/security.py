@@ -5,9 +5,11 @@ from fastapi import Depends, HTTPException
 from fastapi.security import OAuth2PasswordBearer
 
 
-SECRET_KEY = "your-secret-key"
+import os
+
+SECRET_KEY = os.getenv("JWT_SECRET", "socialpilot-super-secret-key-development-fallback-12345")
 ALGORITHM = "HS256"
-ACCESS_TOKEN_EXPIRE_MINUTES = 60
+ACCESS_TOKEN_EXPIRE_MINUTES = 120
 
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
